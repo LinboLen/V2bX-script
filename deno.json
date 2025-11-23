@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "$": "https://deno.land/x/dax@0.39.2/mod.ts"
+  },
+  "tasks": {
+    "install": "deno run -A install.ts",
+    "v2bx": "deno run -A V2bX.ts"
+  }
+}
