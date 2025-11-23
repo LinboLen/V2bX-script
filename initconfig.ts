@@ -30,10 +30,10 @@ let global_ApiHost = "";
 let global_ApiKey = "";
 
 async function add_node_config() {
-    console.log(`${green}请选择节点核心类型：${plain}`);
-    console.log(`${green}1. xray${plain}`);
-    console.log(`${green}2. singbox${plain}`);
-    console.log(`${green}3. hysteria2${plain}`);
+    $.log(`${green}请选择节点核心类型：${plain}`);
+    $.log(`${green}1. xray${plain}`);
+    $.log(`${green}2. singbox${plain}`);
+    $.log(`${green}3. hysteria2${plain}`);
 
     const core_type = await $.prompt("请输入：");
     let core = "";
@@ -48,7 +48,7 @@ async function add_node_config() {
         core = "hysteria2";
         core_hysteria2 = true;
     } else {
-        console.log("无效的选择。请选择 1 2 3。");
+        $.logError("无效的选择。请选择 1 2 3。");
         return;
     }
 
@@ -58,7 +58,7 @@ async function add_node_config() {
         if (/^[0-9]+$/.test(NodeID)) {
             break;
         } else {
-            console.log("错误：请输入正确的数字作为Node ID。");
+            $.logError("错误：请输入正确的数字作为Node ID。");
         }
     }
 
@@ -66,21 +66,21 @@ async function add_node_config() {
     if (core_hysteria2 && !core_xray && !core_sing) {
         NodeType = "hysteria2";
     } else {
-        console.log(`${yellow}请选择节点传输协议：${plain}`);
-        console.log(`${green}1. Shadowsocks${plain}`);
-        console.log(`${green}2. Vless${plain}`);
-        console.log(`${green}3. Vmess${plain}`);
+        $.log(`${yellow}请选择节点传输协议：${plain}`);
+        $.log(`${green}1. Shadowsocks${plain}`);
+        $.log(`${green}2. Vless${plain}`);
+        $.log(`${green}3. Vmess${plain}`);
         if (core_sing) {
-            console.log(`${green}4. Hysteria${plain}`);
-            console.log(`${green}5. Hysteria2${plain}`);
+            $.log(`${green}4. Hysteria${plain}`);
+            $.log(`${green}5. Hysteria2${plain}`);
         }
         if (core_hysteria2 && !core_sing) {
-            console.log(`${green}5. Hysteria2${plain}`);
+            $.log(`${green}5. Hysteria2${plain}`);
         }
-        console.log(`${green}6. Trojan${plain}`);
+        $.log(`${green}6. Trojan${plain}`);
         if (core_sing) {
-            console.log(`${green}7. Tuic${plain}`);
-            console.log(`${green}8. AnyTLS${plain}`);
+            $.log(`${green}7. Tuic${plain}`);
+            $.log(`${green}8. AnyTLS${plain}`);
         }
 
         const typeSelection = await $.prompt("请输入：");
@@ -116,10 +116,10 @@ async function add_node_config() {
     let certdomain = "example.com";
 
     if (isreality.toLowerCase() !== "y" && istls.toLowerCase() === "y") {
-        console.log(`${yellow}请选择证书申请模式：${plain}`);
-        console.log(`${green}1. http模式自动申请，节点域名已正确解析${plain}`);
-        console.log(`${green}2. dns模式自动申请，需填入正确域名服务商API参数${plain}`);
-        console.log(`${green}3. self模式，自签证书或提供已有证书文件${plain}`);
+        $.log(`${yellow}请选择证书申请模式：${plain}`);
+        $.log(`${green}1. http模式自动申请，节点域名已正确解析${plain}`);
+        $.log(`${green}2. dns模式自动申请，需填入正确域名服务商API参数${plain}`);
+        $.log(`${green}3. self模式，自签证书或提供已有证书文件${plain}`);
 
         const modeSelection = await $.prompt("请输入：");
         switch (modeSelection) {
@@ -130,7 +130,7 @@ async function add_node_config() {
 
         certdomain = await $.prompt("请输入节点证书域名(example.com)：");
         if (certmode !== "http") {
-            console.log(`${red}请手动修改配置文件后重启V2bX！${plain}`);
+            $.logError(`${red}请手动修改配置文件后重启V2bX！${plain}`);
         }
     }
 
@@ -233,13 +233,13 @@ async function add_node_config() {
 }
 
 export async function generate_config_file() {
-    console.log(`${yellow}V2bX 配置文件生成向导${plain}`);
-    console.log(`${red}请阅读以下注意事项：${plain}`);
-    console.log(`${red}1. 目前该功能正处测试阶段${plain}`);
-    console.log(`${red}2. 生成的配置文件会保存到 /etc/V2bX/config.json${plain}`);
-    console.log(`${red}3. 原来的配置文件会保存到 /etc/V2bX/config.json.bak${plain}`);
-    console.log(`${red}4. 目前仅部分支持TLS${plain}`);
-    console.log(`${red}5. 使用此功能生成的配置文件会自带审计，确定继续？(y/n)${plain}`);
+    $.log(`${yellow}V2bX 配置文件生成向导${plain}`);
+    $.log(`${red}请阅读以下注意事项：${plain}`);
+    $.log(`${red}1. 目前该功能正处测试阶段${plain}`);
+    $.log(`${red}2. 生成的配置文件会保存到 /etc/V2bX/config.json${plain}`);
+    $.log(`${red}3. 原来的配置文件会保存到 /etc/V2bX/config.json.bak${plain}`);
+    $.log(`${red}4. 目前仅部分支持TLS${plain}`);
+    $.log(`${red}5. 使用此功能生成的配置文件会自带审计，确定继续？(y/n)${plain}`);
 
     const continue_prompt = await $.prompt("请输入：", { default: "n" });
     if (continue_prompt.match(/^[Nn][Oo]?/)) {
@@ -256,7 +256,7 @@ export async function generate_config_file() {
 
             if (fixed_api.toLowerCase() === "y") {
                 fixed_api_info = true;
-                console.log(`${red}成功固定地址${plain}`);
+                $.log(`${red}成功固定地址${plain}`);
             }
             first_node = false;
             await add_node_config();
@@ -515,7 +515,7 @@ masquerade:
 `;
     await fs.writeFile("/etc/V2bX/hy2config.yaml", hy2config);
 
-    console.log(`${green}V2bX 配置文件生成完成,正在重新启动服务${plain}`);
+    $.log(`${green}V2bX 配置文件生成完成,正在重新启动服务${plain}`);
     // Assuming v2bx command is available or we can call the service
     try {
         await $`v2bx restart`;

@@ -12,7 +12,7 @@ const plain = "\x1b[0m";
 
 // check root
 if (process.getuid && process.getuid() !== 0) {
-    console.log(`${red}错误: ${plain} 必须使用root用户运行此脚本！\n`);
+    $.logError(`${red}错误: ${plain} 必须使用root用户运行此脚本！\n`);
     exit(1);
 }
 
@@ -36,7 +36,7 @@ async function confirm_restart() {
 }
 
 async function before_show_menu() {
-    console.log("");
+    $.log("");
     await $.prompt(`${yellow}按回车返回主菜单: ${plain}`);
     await show_menu();
 }
@@ -57,30 +57,30 @@ async function update(version?: string) {
         ver = await $.prompt("输入指定版本(默认最新版): ");
     }
     await install_V2bX(ver);
-    console.log(`${green}更新完成，已自动重启 V2bX，请使用 V2bX log 查看运行日志${plain}`);
+    $.log(`${green}更新完成，已自动重启 V2bX，请使用 V2bX log 查看运行日志${plain}`);
     exit(0);
 }
 
 async function config() {
-    console.log("V2bX在修改配置后会自动尝试重启");
+    $.log("V2bX在修改配置后会自动尝试重启");
     // Try to use available editor
     const editor = env.EDITOR || "vi";
     try {
         await $`${editor} /etc/V2bX/config.json`;
     } catch {
-        console.log(`${red}无法打开编辑器 ${editor}，请手动编辑 /etc/V2bX/config.json${plain}`);
+        $.logError(`${red}无法打开编辑器 ${editor}，请手动编辑 /etc/V2bX/config.json${plain}`);
     }
     await $.sleep(2000);
     await restart();
     const status = await check_status();
     if (status === 0) {
-        console.log(`V2bX状态: ${green}已运行${plain}`);
+        $.log(`V2bX状态: ${green}已运行${plain}`);
     } else if (status === 1) {
         if (await confirm("检测到您未启动V2bX或V2bX自动重启失败，是否查看日志？", "y")) {
             await show_log();
         }
     } else {
-        console.log(`V2bX状态: ${red}未安装${plain}`);
+        $.logError(`V2bX状态: ${red}未安装${plain}`);
     }
 }
 
@@ -106,9 +106,9 @@ async function uninstall() {
     await $`rm /etc/V2bX/ -rf`;
     await $`rm /usr/local/V2bX/ -rf`;
 
-    console.log("");
-    console.log(`卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm ${argv[1]} -f${plain} 进行删除`); // Adjusted message
-    console.log("");
+    $.log("");
+    $.log(`卸载成功，如果你想删除此脚本，则退出脚本后运行 ${green}rm ${argv[1]} -f${plain} 进行删除`); // Adjusted message
+    $.log("");
 
     if (argv.length <= 2) {
         await before_show_menu();
@@ -118,8 +118,8 @@ async function uninstall() {
 async function start(arg?: any) {
     const status = await check_status();
     if (status === 0) {
-        console.log("");
-        console.log(`${green}V2bX已运行，无需再次启动，如需重启请选择重启${plain}`);
+        $.log("");
+        $.log(`${green}V2bX已运行，无需再次启动，如需重启请选择重启${plain}`);
     } else {
         if (release === "alpine") {
             await $`service V2bX start`;
@@ -129,9 +129,9 @@ async function start(arg?: any) {
         await $.sleep(2000);
         const newStatus = await check_status();
         if (newStatus === 0) {
-            console.log(`${green}V2bX 启动成功，请使用 V2bX log 查看运行日志${plain}`);
+            $.log(`${green}V2bX 启动成功，请使用 V2bX log 查看运行日志${plain}`);
         } else {
-            console.log(`${red}V2bX可能启动失败，请稍后使用 V2bX log 查看日志信息${plain}`);
+            $.logError(`${red}V2bX可能启动失败，请稍后使用 V2bX log 查看日志信息${plain}`);
         }
     }
 
@@ -149,9 +149,9 @@ async function stop() {
     await $.sleep(2000);
     const status = await check_status();
     if (status === 1) {
-        console.log(`${green}V2bX 停止成功${plain}`);
+        $.log(`${green}V2bX 停止成功${plain}`);
     } else {
-        console.log(`${red}V2bX停止失败，可能是因为停止时间超过了两秒，请稍后查看日志信息${plain}`);
+        $.logError(`${red}V2bX停止失败，可能是因为停止时间超过了两秒，请稍后查看日志信息${plain}`);
     }
 
     if (argv.length <= 2) {
@@ -168,9 +168,9 @@ async function restart() {
     await $.sleep(2000);
     const status = await check_status();
     if (status === 0) {
-        console.log(`${green}V2bX 重启成功，请使用 V2bX log 查看运行日志${plain}`);
+        $.log(`${green}V2bX 重启成功，请使用 V2bX log 查看运行日志${plain}`);
     } else {
-        console.log(`${red}V2bX可能启动失败，请稍后使用 V2bX log 查看日志信息${plain}`);
+        $.logError(`${red}V2bX可能启动失败，请稍后使用 V2bX log 查看日志信息${plain}`);
     }
     if (argv.length <= 2) {
         await before_show_menu();
@@ -194,7 +194,7 @@ async function enable() {
     } else {
         await $`systemctl enable V2bX`;
     }
-    console.log(`${green}V2bX 设置开机自启成功${plain}`); // Simplified success check
+    $.log(`${green}V2bX 设置开机自启成功${plain}`); // Simplified success check
 
     if (argv.length <= 2) {
         await before_show_menu();
@@ -207,7 +207,7 @@ async function disable() {
     } else {
         await $`systemctl disable V2bX`;
     }
-    console.log(`${green}V2bX 取消开机自启成功${plain}`);
+    $.log(`${green}V2bX 取消开机自启成功${plain}`);
 
     if (argv.length <= 2) {
         await before_show_menu();
@@ -216,7 +216,7 @@ async function disable() {
 
 async function show_log() {
     if (release === "alpine") {
-        console.log(`${red}alpine系统暂不支持日志查看${plain}\n`);
+        $.logError(`${red}alpine系统暂不支持日志查看${plain}\n`);
         exit(1);
     } else {
         await $`journalctl -u V2bX.service -e --no-pager -f`;
@@ -231,7 +231,7 @@ async function install_bbr() {
 }
 
 async function update_shell() {
-    console.log(`${green}To update this script, please pull the latest changes from the repository.${plain}`);
+    $.log(`${green}To update this script, please pull the latest changes from the repository.${plain}`);
     // Since we are using TS files, "updating shell" might mean git pull if it's a git repo, or downloading new TS files.
     // For now, let's just print a message.
     exit(0);
@@ -254,66 +254,66 @@ async function check_enabled(): Promise<boolean> {
 async function show_status() {
     const statusVal = await check_status();
     if (statusVal === 0) {
-        console.log(`V2bX状态: ${green}已运行${plain}`);
+        $.log(`V2bX状态: ${green}已运行${plain}`);
         await show_enable_status();
     } else if (statusVal === 1) {
-        console.log(`V2bX状态: ${yellow}未运行${plain}`);
+        $.logWarn(`V2bX状态: ${yellow}未运行${plain}`);
         await show_enable_status();
     } else {
-        console.log(`V2bX状态: ${red}未安装${plain}`);
+        $.logError(`V2bX状态: ${red}未安装${plain}`);
     }
 }
 
 async function show_enable_status() {
     if (await check_enabled()) {
-        console.log(`是否开机自启: ${green}是${plain}`);
+        $.log(`是否开机自启: ${green}是${plain}`);
     } else {
-        console.log(`是否开机自启: ${red}否${plain}`);
+        $.log(`是否开机自启: ${red}否${plain}`);
     }
 }
 
 async function generate_x25519_key() {
-    console.log("正在生成 x25519 密钥：");
+    $.log("正在生成 x25519 密钥：");
     await $`/usr/local/V2bX/V2bX x25519`;
-    console.log("");
+    $.log("");
     if (argv.length <= 2) {
         await before_show_menu();
     }
 }
 
 async function show_V2bX_version() {
-    console.log("V2bX 版本：");
+    $.log("V2bX 版本：");
     await $`/usr/local/V2bX/V2bX version`;
-    console.log("");
+    $.log("");
     if (argv.length <= 2) {
         await before_show_menu();
     }
 }
 
 async function show_menu() {
-    console.log("");
+    $.log("");
     await show_status();
-    console.log("  1.  安装 V2bX");
-    console.log("  2.  更新 V2bX");
-    console.log("  3.  卸载 V2bX");
-    console.log("------------------------------------------");
-    console.log("  4.  启动 V2bX");
-    console.log("  5.  停止 V2bX");
-    console.log("  6.  重启 V2bX");
-    console.log("  7.  查看 V2bX 状态");
-    console.log("  8.  查看 V2bX 日志");
-    console.log("------------------------------------------");
-    console.log("  9.  设置 V2bX 开机自启");
-    console.log(" 10.  取消 V2bX 开机自启");
-    console.log("------------------------------------------");
-    console.log(" 11.  一键安装 bbr (最新内核)");
-    console.log(" 12.  查看 V2bX 版本");
-    console.log(" 13.  生成 x25519 密钥");
-    console.log(" 14.  生成 V2bX 配置文件");
-    console.log(" 15.  修改 V2bX 配置文件");
-    console.log(" 16.  升级维护脚本");
-    console.log(" 0.   退出脚本");
-    console.log("");
+    $.log("  1.  安装 V2bX");
+    $.log("  2.  更新 V2bX");
+    $.log("  3.  卸载 V2bX");
+    $.log("------------------------------------------");
+    $.log("  4.  启动 V2bX");
+    $.log("  5.  停止 V2bX");
+    $.log("  6.  重启 V2bX");
+    $.log("  7.  查看 V2bX 状态");
+    $.log("  8.  查看 V2bX 日志");
+    $.log("------------------------------------------");
+    $.log("  9.  设置 V2bX 开机自启");
+    $.log(" 10.  取消 V2bX 开机自启");
+    $.log("------------------------------------------");
+    $.log(" 11.  一键安装 bbr (最新内核)");
+    $.log(" 12.  查看 V2bX 版本");
+    $.log(" 13.  生成 x25519 密钥");
+    $.log(" 14.  生成 V2bX 配置文件");
+    $.log(" 15.  修改 V2bX 配置文件");
+    $.log(" 16.  升级维护脚本");
+    $.log(" 0.   退出脚本");
+    $.log("");
 
     const num = await $.prompt("请输入选择:", { default: "0" });
     switch (num) {
@@ -335,7 +335,7 @@ async function show_menu() {
         case "16": await update_shell(); break;
         case "0": exit(0); break;
         default:
-            console.log(`${red}请输入正确的数字 [0-16]${plain}`);
+            $.logError(`${red}请输入正确的数字 [0-16]${plain}`);
             await $.sleep(1000);
             await show_menu();
             break;
