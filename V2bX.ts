@@ -1,10 +1,12 @@
 #!/usr/bin/env -S deno run --allow-all
 
 import { $ } from "@david/dax";
-import { check_status, install_V2bX, release } from "./install.ts";
-import { generate_config_file } from "./initconfig.ts";
 import * as process from "node:process";
 import { argv, env, exit } from "node:process";
+import { osInfo } from "./internal/os-info.ts";
+import { install_V2bX } from "./internal/install-v2bx.ts";
+import { check_status } from "./internal/check-status.ts";
+import { generate_config_file } from "./internal/generate_config_file.ts";
 
 const red = "\x1b[0;31m";
 const green = "\x1b[0;32m";
@@ -16,6 +18,9 @@ if (process.getuid && process.getuid() !== 0) {
   $.logError(`${red}错误: ${plain} 必须使用root用户运行此脚本！\n`);
   exit(1);
 }
+
+//check os
+const { release } = await osInfo();
 
 // OS checks are already done in install.ts and imported via release variable if needed,
 // but V2bX.sh does some specific checks too.
