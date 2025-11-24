@@ -338,27 +338,31 @@ async function check_install(): Promise<boolean> {
 async function show_menu() {
   $.log("");
   await show_status();
-  $.log("  0.  修改配置");
-  $.log("  1.  安装 V2bX");
-  $.log("  2.  更新 V2bX");
-  $.log("  3.  卸载 V2bX");
-  $.log("------------------------------------------");
-  $.log("  4.  启动 V2bX");
-  $.log("  5.  停止 V2bX");
-  $.log("  6.  重启 V2bX");
-  $.log("  7.  查看 V2bX 状态");
-  $.log("  8.  查看 V2bX 日志");
-  $.log("------------------------------------------");
-  $.log("  9.  设置 V2bX 开机自启");
-  $.log(" 10.  取消 V2bX 开机自启");
-  $.log("------------------------------------------");
-  $.log(" 11.  一键安装 bbr (最新内核)");
-  $.log(" 12.  查看 V2bX 版本");
-  $.log(" 13.  生成 x25519 密钥");
-  $.log(" 14.  生成 V2bX 配置文件");
-  $.log(" 15.  升级维护脚本");
-  $.log(" 16.  退出脚本");
-  $.log("");
+  $.log(`
+  ${green}V2bX 后端管理脚本，${plain}${red}不适用于docker${plain}
+--- https://github.com/wyx2685/V2bX ---
+  ${green}0.${plain}  修改配置
+------------------------------------------
+  ${green}1.${plain}  安装 V2bX
+  ${green}2.${plain}  更新 V2bX
+  ${green}3.${plain}  卸载 V2bX
+------------------------------------------
+  ${green}4.${plain}  启动 V2bX
+  ${green}5.${plain}  停止 V2bX
+  ${green}6.${plain}  重启 V2bX
+  ${green}7.${plain}  查看 V2bX 状态
+  ${green}8.${plain}  查看 V2bX 日志
+------------------------------------------
+  ${green}9.${plain}  设置 V2bX 开机自启
+  ${green}10.${plain} 取消 V2bX 开机自启
+------------------------------------------
+  ${green}11.${plain} 一键安装 bbr (最新内核)
+  ${green}12.${plain} 查看 V2bX 版本
+  ${green}13.${plain} 生成 x25519 密钥
+  ${green}14.${plain} 生成 V2bX 配置文件
+  ${green}15.${plain} 升级维护脚本
+  ${green}16.${plain} 退出脚本
+`);
 
   const num = await $.prompt("请输入选择:", { default: "0" });
   switch (num) {
