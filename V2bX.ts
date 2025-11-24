@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run --allow-all
 
 import { $ } from "@david/dax";
-import { check_status, install_V2bX, release } from "./install.js";
-import { generate_config_file } from "./initconfig.js";
+import { check_status, install_V2bX, release } from "./install.ts";
+import { generate_config_file } from "./initconfig.ts";
 import * as process from "node:process";
 import { argv, env, exit } from "node:process";
 
@@ -309,9 +309,36 @@ async function show_V2bX_version() {
   }
 }
 
+async function check_uninstall(): Promise<boolean> {
+  const statusVal = await check_status();
+  if (statusVal !== 2) {
+    $.log("");
+    $.logError(`${red}V2bX已安装，请不要重复安装${plain}`);
+    if (argv.length <= 2) {
+      await before_show_menu();
+    }
+    return false;
+  }
+  return true;
+}
+
+async function check_install(): Promise<boolean> {
+  const statusVal = await check_status();
+  if (statusVal === 2) {
+    $.log("");
+    $.logError(`${red}请先安装V2bX${plain}`);
+    if (argv.length <= 2) {
+      await before_show_menu();
+    }
+    return false;
+  }
+  return true;
+}
+
 async function show_menu() {
   $.log("");
   await show_status();
+  $.log("  0.  修改配置");
   $.log("  1.  安装 V2bX");
   $.log("  2.  更新 V2bX");
   $.log("  3.  卸载 V2bX");
@@ -329,62 +356,61 @@ async function show_menu() {
   $.log(" 12.  查看 V2bX 版本");
   $.log(" 13.  生成 x25519 密钥");
   $.log(" 14.  生成 V2bX 配置文件");
-  $.log(" 15.  修改 V2bX 配置文件");
-  $.log(" 16.  升级维护脚本");
-  $.log(" 0.   退出脚本");
+  $.log(" 15.  升级维护脚本");
+  $.log(" 16.  退出脚本");
   $.log("");
 
   const num = await $.prompt("请输入选择:", { default: "0" });
   switch (num) {
+    case "0":
+      if (await check_install()) await config();
+      break;
     case "1":
-      await install();
+      if (await check_uninstall()) await install();
       break;
     case "2":
-      await update();
+      if (await check_install()) await update();
       break;
     case "3":
-      await uninstall();
+      if (await check_install()) await uninstall();
       break;
     case "4":
-      await start();
+      if (await check_install()) await start();
       break;
     case "5":
-      await stop();
+      if (await check_install()) await stop();
       break;
     case "6":
-      await restart();
+      if (await check_install()) await restart();
       break;
     case "7":
-      await status();
+      if (await check_install()) await status();
       break;
     case "8":
-      await show_log();
+      if (await check_install()) await show_log();
       break;
     case "9":
-      await enable();
+      if (await check_install()) await enable();
       break;
     case "10":
-      await disable();
+      if (await check_install()) await disable();
       break;
     case "11":
       await install_bbr();
       break;
     case "12":
-      await show_V2bX_version();
+      if (await check_install()) await show_V2bX_version();
       break;
     case "13":
-      await generate_x25519_key();
+      if (await check_install()) await generate_x25519_key();
       break;
     case "14":
       await generate_config_file();
       break;
     case "15":
-      await config();
-      break;
-    case "16":
       await update_shell();
       break;
-    case "0":
+    case "16":
       exit(0);
       break;
     default:
@@ -400,44 +426,46 @@ if (argv.length > 2) {
   const param = argv[3];
   switch (command) {
     case "start":
-      await start(0);
+      if (await check_install()) await start(0);
       break;
     case "stop":
-      await stop();
+      if (await check_install()) await stop();
       break;
     case "restart":
-      await restart();
+      if (await check_install()) await restart();
       break;
     case "status":
-      await status();
+      if (await check_install()) await status();
       break;
     case "enable":
-      await enable();
+      if (await check_install()) await enable();
       break;
     case "disable":
-      await disable();
+      if (await check_install()) await disable();
       break;
     case "log":
-      await show_log();
+      if (await check_install()) await show_log();
       break;
     case "x25519":
-      await generate_x25519_key();
+      if (await check_install()) await generate_x25519_key();
       break;
     case "generate":
       await generate_config_file();
       break;
     case "update":
-      if (param) await update(param);
-      else await update();
+      if (await check_install()) {
+        if (param) await update(param);
+        else await update();
+      }
       break;
     case "install":
-      await install();
+      if (await check_uninstall()) await install();
       break;
     case "uninstall":
-      await uninstall();
+      if (await check_install()) await uninstall();
       break;
     case "version":
-      await show_V2bX_version();
+      if (await check_install()) await show_V2bX_version();
       break;
     default:
       await show_menu();
