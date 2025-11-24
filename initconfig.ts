@@ -1,8 +1,11 @@
-import { $ } from "dax-sh";
-import { exit, argv } from 'node:process';
-import * as process from 'node:process';
-import * as fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+#!/usr/bin/env -S deno run --allow-all
+
+import { $ } from "@david/dax";
+import * as process from "node:process";
+import { argv, exit } from "node:process";
+import * as fs from "node:fs/promises";
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const red = "\x1b[0;31m";
 const green = "\x1b[0;32m";
@@ -85,15 +88,33 @@ async function add_node_config() {
 
         const typeSelection = await $.prompt("请输入：");
         switch (typeSelection) {
-            case "1": NodeType = "shadowsocks"; break;
-            case "2": NodeType = "vless"; break;
-            case "3": NodeType = "vmess"; break;
-            case "4": NodeType = "hysteria"; break;
-            case "5": NodeType = "hysteria2"; break;
-            case "6": NodeType = "trojan"; break;
-            case "7": NodeType = "tuic"; break;
-            case "8": NodeType = "anytls"; break;
-            default: NodeType = "shadowsocks"; break;
+            case "1":
+                NodeType = "shadowsocks";
+                break;
+            case "2":
+                NodeType = "vless";
+                break;
+            case "3":
+                NodeType = "vmess";
+                break;
+            case "4":
+                NodeType = "hysteria";
+                break;
+            case "5":
+                NodeType = "hysteria2";
+                break;
+            case "6":
+                NodeType = "trojan";
+                break;
+            case "7":
+                NodeType = "tuic";
+                break;
+            case "8":
+                NodeType = "anytls";
+                break;
+            default:
+                NodeType = "shadowsocks";
+                break;
         }
     }
 
@@ -102,7 +123,9 @@ async function add_node_config() {
     let istls = "n";
 
     if (NodeType === "vless") {
-        isreality = await $.prompt("请选择是否为reality节点？(y/n)", { default: "n" });
+        isreality = await $.prompt("请选择是否为reality节点？(y/n)", {
+            default: "n",
+        });
     } else if (["hysteria", "hysteria2", "tuic", "anytls"].includes(NodeType)) {
         fastopen = false;
         istls = "y";
@@ -123,9 +146,15 @@ async function add_node_config() {
 
         const modeSelection = await $.prompt("请输入：");
         switch (modeSelection) {
-            case "1": certmode = "http"; break;
-            case "2": certmode = "dns"; break;
-            case "3": certmode = "self"; break;
+            case "1":
+                certmode = "http";
+                break;
+            case "2":
+                certmode = "dns";
+                break;
+            case "3":
+                certmode = "self";
+                break;
         }
 
         certdomain = await $.prompt("请输入节点证书域名(example.com)：");
@@ -143,7 +172,7 @@ async function add_node_config() {
     let node_config: any = {};
 
     // Use global API info if fixed, otherwise ask or use what was just entered (logic handled in caller loop, but here we need values)
-    // Actually the original script logic asks for ApiHost/ApiKey in the loop BEFORE calling add_node_config, 
+    // Actually the original script logic asks for ApiHost/ApiKey in the loop BEFORE calling add_node_config,
     // but add_node_config uses the variables.
 
     if (core_type === "1") {
@@ -171,9 +200,9 @@ async function add_node_config() {
                 "Email": "v2bx@github.com",
                 "Provider": "cloudflare",
                 "DNSEnv": {
-                    "EnvName": "env1"
-                }
-            }
+                    "EnvName": "env1",
+                },
+            },
         };
     } else if (core_type === "2") {
         node_config = {
@@ -198,9 +227,9 @@ async function add_node_config() {
                 "Email": "v2bx@github.com",
                 "Provider": "cloudflare",
                 "DNSEnv": {
-                    "EnvName": "env1"
-                }
-            }
+                    "EnvName": "env1",
+                },
+            },
         };
     } else if (core_type === "3") {
         node_config = {
@@ -224,9 +253,9 @@ async function add_node_config() {
                 "Email": "v2bx@github.com",
                 "Provider": "cloudflare",
                 "DNSEnv": {
-                    "EnvName": "env1"
-                }
-            }
+                    "EnvName": "env1",
+                },
+            },
         };
     }
     nodes_config.push(JSON.stringify(node_config, null, 4));
@@ -252,7 +281,10 @@ export async function generate_config_file() {
         if (first_node) {
             global_ApiHost = await $.prompt("请输入机场网址(https://example.com)：");
             global_ApiKey = await $.prompt("请输入面板对接API Key：");
-            const fixed_api = await $.prompt("是否设置固定的机场网址和API Key？(y/n)", { default: "n" });
+            const fixed_api = await $.prompt(
+                "是否设置固定的机场网址和API Key？(y/n)",
+                { default: "n" },
+            );
 
             if (fixed_api.toLowerCase() === "y") {
                 fixed_api_info = true;
@@ -261,11 +293,16 @@ export async function generate_config_file() {
             first_node = false;
             await add_node_config();
         } else {
-            const continue_adding_node = await $.prompt("是否继续添加节点配置？(回车继续，输入n或no退出)", { default: "y" });
+            const continue_adding_node = await $.prompt(
+                "是否继续添加节点配置？(回车继续，输入n或no退出)",
+                { default: "y" },
+            );
             if (continue_adding_node.match(/^[Nn][Oo]?/)) {
                 break;
             } else if (!fixed_api_info) {
-                global_ApiHost = await $.prompt("请输入机场网址(https://example.com)：");
+                global_ApiHost = await $.prompt(
+                    "请输入机场网址(https://example.com)：",
+                );
                 global_ApiKey = await $.prompt("请输入面板对接API Key：");
             }
             await add_node_config();
@@ -278,10 +315,10 @@ export async function generate_config_file() {
             "Type": "xray",
             "Log": {
                 "Level": "error",
-                "ErrorPath": "/etc/V2bX/error.log"
+                "ErrorPath": "/etc/V2bX/error.log",
             },
             "OutboundConfigPath": "/etc/V2bX/custom_outbound.json",
-            "RouteConfigPath": "/etc/V2bX/route.json"
+            "RouteConfigPath": "/etc/V2bX/route.json",
         });
     }
 
@@ -290,14 +327,14 @@ export async function generate_config_file() {
             "Type": "sing",
             "Log": {
                 "Level": "error",
-                "Timestamp": true
+                "Timestamp": true,
             },
             "NTP": {
                 "Enable": false,
                 "Server": "time.apple.com",
-                "ServerPort": 0
+                "ServerPort": 0,
             },
-            "OriginalPath": "/etc/V2bX/sing_origin.json"
+            "OriginalPath": "/etc/V2bX/sing_origin.json",
         });
     }
 
@@ -305,8 +342,8 @@ export async function generate_config_file() {
         cores_config_list.push({
             "Type": "hysteria2",
             "Log": {
-                "Level": "error"
-            }
+                "Level": "error",
+            },
         });
     }
 
@@ -318,35 +355,41 @@ export async function generate_config_file() {
     const finalConfig = {
         "Log": {
             "Level": "error",
-            "Output": ""
+            "Output": "",
         },
         "Cores": cores_config_list,
-        "Nodes": nodes_config.map(n => JSON.parse(n))
+        "Nodes": nodes_config.map((n) => JSON.parse(n)),
     };
 
-    await fs.writeFile("/etc/V2bX/config.json", JSON.stringify(finalConfig, null, 4));
+    await fs.writeFile(
+        "/etc/V2bX/config.json",
+        JSON.stringify(finalConfig, null, 4),
+    );
 
     const customOutbound = [
         {
             "tag": "IPv4_out",
             "protocol": "freedom",
             "settings": {
-                "domainStrategy": "UseIPv4v6"
-            }
+                "domainStrategy": "UseIPv4v6",
+            },
         },
         {
             "tag": "IPv6_out",
             "protocol": "freedom",
             "settings": {
-                "domainStrategy": "UseIPv6"
-            }
+                "domainStrategy": "UseIPv6",
+            },
         },
         {
             "protocol": "blackhole",
-            "tag": "block"
-        }
+            "tag": "block",
+        },
     ];
-    await fs.writeFile("/etc/V2bX/custom_outbound.json", JSON.stringify(customOutbound, null, 4));
+    await fs.writeFile(
+        "/etc/V2bX/custom_outbound.json",
+        JSON.stringify(customOutbound, null, 4),
+    );
 
     const routeConfig = {
         "domainStrategy": "AsIs",
@@ -355,8 +398,8 @@ export async function generate_config_file() {
                 "type": "field",
                 "outboundTag": "block",
                 "ip": [
-                    "geoip:private"
-                ]
+                    "geoip:private",
+                ],
             },
             {
                 "type": "field",
@@ -383,8 +426,8 @@ export async function generate_config_file() {
                     "regexp:(.*.||)(pincong).(rocks)",
                     "regexp:(.*.||)(taobao).(com)",
                     "regexp:(.*.||)(laomoe|jiyou|ssss|lolicp|vv1234|0z|4321q|868123|ksweb|mm126).(com|cloud|fun|cn|gs|xyz|cc)",
-                    "regexp:(flows|miaoko).(pages).(dev)"
-                ]
+                    "regexp:(flows|miaoko).(pages).(dev)",
+                ],
             },
             {
                 "type": "field",
@@ -394,24 +437,27 @@ export async function generate_config_file() {
                     "10.0.0.0/8",
                     "fc00::/7",
                     "fe80::/10",
-                    "172.16.0.0/12"
-                ]
+                    "172.16.0.0/12",
+                ],
             },
             {
                 "type": "field",
                 "outboundTag": "block",
                 "protocol": [
-                    "bittorrent"
-                ]
+                    "bittorrent",
+                ],
             },
             {
                 "type": "field",
                 "outboundTag": "IPv4_out",
-                "network": "udp,tcp"
-            }
-        ]
+                "network": "udp,tcp",
+            },
+        ],
     };
-    await fs.writeFile("/etc/V2bX/route.json", JSON.stringify(routeConfig, null, 4));
+    await fs.writeFile(
+        "/etc/V2bX/route.json",
+        JSON.stringify(routeConfig, null, 4),
+    );
 
     const ipv6_support = await check_ipv6_support();
     let dnsstrategy = "ipv4_only";
@@ -424,10 +470,10 @@ export async function generate_config_file() {
             "servers": [
                 {
                     "tag": "cf",
-                    "address": "1.1.1.1"
-                }
+                    "address": "1.1.1.1",
+                },
             ],
-            "strategy": dnsstrategy
+            "strategy": dnsstrategy,
         },
         "outbounds": [
             {
@@ -435,19 +481,19 @@ export async function generate_config_file() {
                 "type": "direct",
                 "domain_resolver": {
                     "server": "cf",
-                    "strategy": dnsstrategy
-                }
+                    "strategy": dnsstrategy,
+                },
             },
             {
                 "type": "block",
-                "tag": "block"
-            }
+                "tag": "block",
+            },
         ],
         "route": {
             "rules": [
                 {
                     "ip_is_private": true,
-                    "outbound": "block"
+                    "outbound": "block",
                 },
                 {
                     "domain_regex": [
@@ -472,25 +518,29 @@ export async function generate_config_file() {
                         "(.*.||)(pincong).(rocks)",
                         "(.*.||)(taobao).(com)",
                         "(.*.||)(laomoe|jiyou|ssss|lolicp|vv1234|0z|4321q|868123|ksweb|mm126).(com|cloud|fun|cn|gs|xyz|cc)",
-                        "(flows|miaoko).(pages).(dev)"
+                        "(flows|miaoko).(pages).(dev)",
                     ],
-                    "outbound": "block"
+                    "outbound": "block",
                 },
                 {
                     "outbound": "direct",
                     "network": [
-                        "udp", "tcp"
-                    ]
-                }
-            ]
+                        "udp",
+                        "tcp",
+                    ],
+                },
+            ],
         },
         "experimental": {
             "cache_file": {
-                "enabled": true
-            }
-        }
+                "enabled": true,
+            },
+        },
     };
-    await fs.writeFile("/etc/V2bX/sing_origin.json", JSON.stringify(singOrigin, null, 4));
+    await fs.writeFile(
+        "/etc/V2bX/sing_origin.json",
+        JSON.stringify(singOrigin, null, 4),
+    );
 
     const hy2config = `quic:
   initStreamReceiveWindow: 8388608
@@ -529,6 +579,9 @@ masquerade:
     }
 }
 
-if (argv[1] === fileURLToPath(import.meta.url)) {
+const currentPath = realpathSync(fileURLToPath(import.meta.url));
+const mainPath = realpathSync(argv[1]);
+
+if (currentPath == mainPath) {
     await generate_config_file();
 }
