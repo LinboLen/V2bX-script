@@ -1,5 +1,4 @@
 import { $ } from "@david/dax";
-import { cwd, exit, getuid } from "node:process";
 import { osInfo } from "./os-info.ts";
 
 const red = "\x1b[0;31m";

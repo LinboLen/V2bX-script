@@ -1,10 +1,9 @@
 import { $ } from "@david/dax";
 import * as fs from "node:fs/promises";
 import * as process from "node:process";
-import { exit } from "node:process";
+import { cwd, exit } from "node:process";
 import { generate_config_file } from "./generate_config_file.ts";
 import { osInfo } from "./os-info.ts";
-import { cwd } from "process";
 import { check_status } from "./check-status.ts";
 
 

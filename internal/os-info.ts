@@ -1,6 +1,6 @@
 import { $ } from "@david/dax";
 import * as fs from "node:fs/promises";
-import { arch as nodeArch, exit } from "node:process";
+import { exit } from "node:process";
 
 const red = "\x1b[0;31m";
 const green = "\x1b[0;32m";
