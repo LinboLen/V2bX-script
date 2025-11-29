@@ -369,7 +369,7 @@ async function show_menu() {
   ${green}16.${plain} 退出脚本
 `);
 
-  const num = await $.prompt("请输入选择:", { default: "0" });
+  const num = await $.prompt("请输入选择:", { default: "16" });
   switch (num) {
     case "0":
       if (await check_install()) await config();
