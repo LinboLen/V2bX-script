@@ -6,14 +6,15 @@ import { generate_config_file } from "./generate_config_file.ts";
 import { osInfo } from "./os-info.ts";
 import { check_status } from "./check-status.ts";
 
-
 const red = "\x1b[0;31m";
 const green = "\x1b[0;32m";
 // const yellow = "\x1b[0;33m";
 const plain = "\x1b[0m";
 
-
 const cur_dir = cwd();
+
+const apiRepoUrl = "https://api.github.com/repos/LinBoLen/V2bX/releases/latest";
+const hostRepoUrl = "https://github.com/LinBoLen/V2bX";
 
 // check os
 const { release, arch, os_version } = await osInfo();
@@ -29,7 +30,7 @@ export async function install_V2bX(version?: string) {
   let last_version = version;
   if (!last_version) {
     const releaseData = await $.request(
-      "https://api.github.com/repos/wyx2685/V2bX/releases/latest",
+      apiRepoUrl,
     ).json();
     last_version = releaseData.tag_name;
     if (!last_version) {
@@ -39,10 +40,10 @@ export async function install_V2bX(version?: string) {
       exit(1);
     }
     $.log(`检测到 V2bX 最新版本：${last_version}，开始安装`);
-    await $`wget --no-check-certificate -N --progress=bar -O /usr/local/V2bX/V2bX-linux.zip https://github.com/wyx2685/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip`;
+    await $`wget --no-check-certificate -N --progress=bar -O /usr/local/V2bX/V2bX-linux.zip ${hostRepoUrl}/releases/download/${last_version}/V2bX-linux-${arch}.zip`;
   } else {
     const url =
-      `https://github.com/wyx2685/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip`;
+      `${hostRepoUrl}/releases/download/${last_version}/V2bX-linux-${arch}.zip`;
     $.log(`开始安装 V2bX ${last_version}`);
     await $`wget --no-check-certificate -N --progress=bar -O /usr/local/V2bX/V2bX-linux.zip ${url}`;
   }
