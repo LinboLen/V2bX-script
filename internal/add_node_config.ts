@@ -134,7 +134,7 @@ export async function add_node_config(coreConfig: CoreConfig) {
 
     certdomain = await $.prompt("请输入节点证书域名(example.com)：");
     if (certmode !== "http") {
-      $.logError(`${red}请手动修改配置文件后重启V2bX！${plain}`);
+      $.logError(`${red}dns非http模式，请手动修改配置文件后重启V2bX！${plain}`);
     }
   }
 
