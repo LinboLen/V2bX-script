@@ -328,16 +328,23 @@ masquerade:
 `;
   await fs.writeFile("/etc/V2bX/hy2config.yaml", hy2config);
 
-  $.log(`${green}V2bX 配置文件生成完成,正在重新启动服务${plain}`);
-  // Assuming v2bx command is available or we can call the service
-  try {
-    await $`v2bx restart`;
-  } catch {
-    // fallback to systemctl/service if v2bx alias not present
-    if (await $.path("/etc/init.d/V2bX").exists()) {
-      await $`service V2bX restart`;
-    } else {
-      await $`systemctl restart V2bX`;
+  const restartService = await $.prompt(
+    `${green}V2bX 配置文件生成完成,是否重新启动服务${plain}y/Nn?`,
+    { default: "y" },
+  );
+
+  if (restartService.toLowerCase() === "y") {
+    $.log(`${green}正在重新启动服务${plain}`);
+    // Assuming v2bx command is available or we can call the service
+    try {
+      await $`v2bx restart`;
+    } catch {
+      // fallback to systemctl/service if v2bx alias not present
+      if (await $.path("/etc/init.d/V2bX").exists()) {
+        await $`service V2bX restart`;
+      } else {
+        await $`systemctl restart V2bX`;
+      }
     }
   }
 }
